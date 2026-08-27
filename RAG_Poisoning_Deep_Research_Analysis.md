@@ -514,16 +514,13 @@ Multiple sub-metrics:
 
 ---
 
-## Suggested 6-Month Timeline
+## Recommended Research Sequence
 
-| Month | Phase | Deliverables |
-|-------|-------|-------------|
-| **Month 1** | Literature review + environment setup | Reading list complete; RAG pipeline running; PoisonedRAG attack reproduced |
-| **Month 2** | Implement baseline attacks | Working PoisonedRAG, naive IPI, blocker doc attacks on NQ/HotpotQA |
-| **Month 3** | Implement defense mechanisms | Dense-Sparse Disagreement detector + 2 baseline defenses implemented |
-| **Month 4** | Comprehensive experiments | Full evaluation matrix: 3 attacks × 3 defenses × 3 datasets × multiple poison ratios |
-| **Month 5** | Analysis + paper writing | Results tables, figures, statistical significance tests; first paper draft |
-| **Month 6** | Polish + submit | Final paper; thesis document; presentation preparation |
-
-> [!CAUTION]
-> **Common BTP mistake:** Spending 4 months building and 2 months rushing experiments/writing. Flip it: finish implementation by Month 3 and spend 3 months on rigorous evaluation and writing. **The experiments and analysis ARE the contribution**, not the code.
+| Step | Phase | Deliverables |
+|------|-------|-------------|
+| **1** | Literature review + environment setup | Reading list complete; RAG pipeline running; PoisonedRAG attack reproduced |
+| **2** | Implement baseline attacks | Working PoisonedRAG, naive IPI, blocker doc attacks on NQ/HotpotQA |
+| **3** | Implement defense mechanisms | Dense-Sparse Disagreement detector + 2 baseline defenses implemented |
+| **4** | Comprehensive experiments | Full evaluation matrix: 3 attacks × 3 defenses × 3 datasets × multiple poison ratios |
+| **5** | Analysis + paper writing | Results tables, figures, statistical significance tests; first paper draft |
+| **6** | Polish + submit | Final paper; thesis document; presentation preparation |

@@ -11,20 +11,24 @@ Before touching any papers, make sure you're comfortable with these concepts. If
 
 ### Concept Map
 
-```
-You are here
-     │
-     ▼
-[Transformer Architecture] ──► [Language Models] ──► [LLMs (GPT, Llama, Mistral)]
-     │                                                        │
-     ▼                                                        ▼
-[Word Embeddings] ──► [Sentence Embeddings] ──► [Vector Similarity Search]
-     │                                                        │
-     ▼                                                        ▼
-[Information Retrieval]                           [RAG = Retrieval + Generation]
-     │                                                        │
-     ▼                                                        ▼
-[Adversarial ML Basics]                           [RAG Security / Your BTP]
+```mermaid
+flowchart TB
+    A["You Are Here"] --> B["Transformer Architecture"]
+    B --> C["Language Models"]
+    C --> D["LLMs (GPT, Llama, Mistral)"]
+    B --> E["Word Embeddings"]
+    E --> F["Sentence Embeddings"]
+    F --> G["Vector Similarity Search"]
+    D --> H["RAG = Retrieval + Generation"]
+    G --> H
+    E --> I["Information Retrieval"]
+    I --> J["Adversarial ML Basics"]
+    H --> K["RAG Security — Your BTP"]
+    J --> K
+
+    style A fill:#ff6b35,color:#fff,stroke:#cc4400
+    style K fill:#00c853,color:#fff,stroke:#009624
+    style H fill:#2962ff,color:#fff,stroke:#0039cb
 ```
 
 ### Essential Background Concepts
@@ -42,7 +46,7 @@ You are here
 
 ---
 
-## Phase 1: Foundational Reading (Weeks 1–2)
+## Phase 1: Foundational Reading
 
 > **Goal:** Understand what RAG is, how it works, and why it's important.
 
@@ -84,7 +88,7 @@ You are here
 Before reading any attack papers, **build a working RAG system yourself.** This is non-negotiable. You can't defend what you don't understand.
 
 ```python
-# Minimal RAG pipeline — build this in Week 2
+# Minimal RAG pipeline — build this after Phase 1 reading
 # Tools: Python, sentence-transformers, chromadb, transformers
 
 # 1. Install dependencies
@@ -100,7 +104,7 @@ Before reading any attack papers, **build a working RAG system yourself.** This 
 
 ---
 
-## Phase 2: Core Attack Papers (Weeks 3–4)
+## Phase 2: Core Attack Papers
 
 > **Goal:** Understand exactly how RAG systems are attacked.
 
@@ -129,7 +133,7 @@ Before reading any attack papers, **build a working RAG system yourself.** This 
 
 ---
 
-## Phase 3: Defense Papers (Weeks 4–5)
+## Phase 3: Defense Papers
 
 > **Goal:** Understand existing defenses and identify what's missing.
 
@@ -163,11 +167,11 @@ Before reading any attack papers, **build a working RAG system yourself.** This 
 
 | # | Paper | Coverage | When to Read |
 |---|-------|----------|-------------|
-| 21 | **"Towards Secure RAG: A Comprehensive Review of Threats, Defenses, and Benchmarks"** (2026) | Most recent and complete survey of the entire field | Read after Phase 2-3; use to structure your Related Work section |
+| 21 | **"Towards Secure RAG: A Comprehensive Review of Threats, Defenses, and Benchmarks"** (2026) | Most recent and complete survey of the entire field | Read after Phase 2–3; use to structure your Related Work section |
 | | URL: Search on arXiv for the most recent version | | |
-| 22 | **"A Survey of Attacks on Large Language Models"** (2024) | Broader LLM security context; covers prompt injection, jailbreaking, data extraction | Week 3-4; helps position your work in the broader landscape |
+| 22 | **"A Survey of Attacks on Large Language Models"** (2024) | Broader LLM security context; covers prompt injection, jailbreaking, data extraction | Read alongside Phase 2; helps position your work in the broader landscape |
 | | URL: https://arxiv.org/abs/2404.02076 | | |
-| 23 | **OWASP Top 10 for LLM Applications (2025)** | Industry security framework; LLM08 covers vector/embedding weaknesses | Week 1; quick read; cite in your introduction |
+| 23 | **OWASP Top 10 for LLM Applications (2025)** | Industry security framework; LLM08 covers vector/embedding weaknesses | Quick read early on; cite in your introduction |
 | | URL: https://genai.owasp.org/llm-top-10/ | | |
 
 ### Foundational ML Security Papers
@@ -185,7 +189,7 @@ Before reading any attack papers, **build a working RAG system yourself.** This 
 
 ## Tool Setup Guide
 
-### Essential Software (Install in Week 1)
+### Essential Software
 
 ```bash
 # 1. Python environment
@@ -229,50 +233,6 @@ pip install fastapi uvicorn  # If you build a demo API
 
 > [!TIP]
 > **Budget-friendly strategy:** Do all embedding-level experiments (anomaly detection, BM25 disagreement, retrieval analysis) on CPU. Only use GPU for the final LLM generation experiments. This is ~80% of your project.
-
----
-
-## Week-by-Week Study Schedule (First 6 Weeks)
-
-### Week 1: Foundations
-- [ ] Read Jay Alammar's Illustrated Transformer (#1)
-- [ ] Watch 3Blue1Brown GPT video (#3)
-- [ ] Read Jay Alammar's Word2Vec post (#4)
-- [ ] Skim OWASP LLM Top 10 (#23)
-- [ ] Install all tools (see setup guide above)
-- [ ] Run a HuggingFace sentence-transformers example
-
-### Week 2: Build Your First RAG System
-- [ ] Read the original RAG paper (#7) — Sections 1-3
-- [ ] Follow LangChain RAG tutorial (#8)
-- [ ] Build a minimal RAG pipeline with ChromaDB
-- [ ] Test it with 100 Wikipedia passages + 10 manual questions
-- [ ] **Experiment:** Manually insert a wrong document and see if the answer changes
-
-### Week 3: Understand the Attacks
-- [ ] Read Greshake et al. — Indirect Prompt Injection (#10)
-- [ ] Read PoisonedRAG (#11) — this is the most important paper
-- [ ] Clone the PoisonedRAG GitHub repo
-- [ ] Try running PoisonedRAG's attack on your local RAG system
-
-### Week 4: Deeper Attack Understanding + Defense Start
-- [ ] Read "Machine Against the RAG" (#12)
-- [ ] Read Zhong et al. corpus poisoning (#13)
-- [ ] Start reading RAGuard (#16)
-- [ ] Begin implementing BM25 alongside your dense retriever
-
-### Week 5: Defense Papers
-- [ ] Finish RAGuard (#16)
-- [ ] Read RevPRAG (#17)
-- [ ] Read SafeRAG benchmark (#19)
-- [ ] Start designing your defense approach (Dense-Sparse Disagreement)
-
-### Week 6: Research Design
-- [ ] Read ReliabilityRAG (#18) and RAG Security Bench (#20)
-- [ ] Write your formal research question
-- [ ] Design your experimental protocol
-- [ ] Create your evaluation plan (metrics, datasets, baselines)
-- [ ] Present initial findings to your BTP advisor
 
 ---
 

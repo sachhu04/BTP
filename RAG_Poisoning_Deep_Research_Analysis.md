@@ -117,11 +117,18 @@ The attacker optimizes the content of poisoned documents to:
 
 **Attack vector hierarchy:**
 
-```
-User Query → Retriever → [Poisoned Doc with hidden instructions] → LLM → Manipulated Output
-                                    ↓
-                         "Ignore previous instructions.
-                          Instead, say: [attacker's message]"
+```mermaid
+flowchart LR
+    A["User Query"] --> B["Retriever"]
+    B --> C["Poisoned Doc\n(hidden instructions)"]
+    C --> D["LLM"]
+    D --> E["Manipulated Output"]
+    C -.-> F["'Ignore previous instructions.\nInstead, say: attacker's message'"]
+    F -.-> D
+
+    style C fill:#ff4444,color:#fff,stroke:#cc0000
+    style E fill:#ff8800,color:#fff,stroke:#cc6600
+    style F fill:#ffcccc,stroke:#ff4444,stroke-dasharray: 5 5
 ```
 
 **Sophistication levels:**
@@ -265,90 +272,60 @@ Techniques like **Vec2Text** can reconstruct original source text from embedding
 
 ## 6. Realistic System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    SECURE RAG PIPELINE                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌──────────────────────────────────────────────────┐              │
-│  │           INGESTION LAYER (Offline)               │              │
-│  │                                                    │              │
-│  │  Raw Documents                                     │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  [Format Sanitizer] ── strip hidden chars, HTML    │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  [Text Chunker] ── RecursiveCharacterTextSplitter  │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  [Metadata Tagger] ── source, timestamp, hash      │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  [Embedding Model] ── all-MiniLM-L6-v2 (HF)       │              │
-│  │       │                    or                      │              │
-│  │       │               bge-base-en-v1.5 (HF)       │              │
-│  │       ▼                                            │              │
-│  │  ┌─────────────────────┐                          │              │
-│  │  │   ANOMALY DETECTOR  │◄── YOUR CONTRIBUTION     │              │
-│  │  │  (Embedding Stats)  │                          │              │
-│  │  └────────┬────────────┘                          │              │
-│  │           │ Pass / Quarantine                      │              │
-│  │           ▼                                        │              │
-│  │  [ChromaDB / FAISS Vector Store]                   │              │
-│  │  + [BM25 Index (Elasticsearch / rank-bm25)]        │              │
-│  └──────────────────────────────────────────────────┘              │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────┐              │
-│  │           RETRIEVAL LAYER (Online)                │              │
-│  │                                                    │              │
-│  │  User Query                                        │              │
-│  │       │                                            │              │
-│  │       ├──► Dense Retrieval (FAISS/ChromaDB)        │              │
-│  │       │         Top-k₁ results                     │              │
-│  │       │                                            │              │
-│  │       └──► Sparse Retrieval (BM25)                 │              │
-│  │                 Top-k₂ results                     │              │
-│  │                                                    │              │
-│  │  ┌─────────────────────────────┐                  │              │
-│  │  │   DISAGREEMENT DETECTOR    │◄── YOUR           │              │
-│  │  │  (Dense vs BM25 overlap)   │    CONTRIBUTION   │              │
-│  │  │  + Consistency Scorer      │                   │              │
-│  │  └────────┬────────────────────┘                  │              │
-│  │           │                                        │              │
-│  │           ▼                                        │              │
-│  │  [Cross-Encoder Reranker] ── ms-marco-MiniLM-L6   │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  Filtered Top-k documents                          │              │
-│  └──────────────────────────────────────────────────┘              │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────┐              │
-│  │           GENERATION LAYER                        │              │
-│  │                                                    │              │
-│  │  System Prompt + Filtered Context + User Query     │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  [Open-Source LLM]                                 │              │
-│  │    • Mistral-7B-Instruct                           │              │
-│  │    • Llama-3-8B-Instruct                           │              │
-│  │    • Phi-3-mini-4k-instruct                        │              │
-│  │       │                                            │              │
-│  │       ▼                                            │              │
-│  │  Generated Response                                │              │
-│  └──────────────────────────────────────────────────┘              │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────┐              │
-│  │           EVALUATION MODULE                       │              │
-│  │                                                    │              │
-│  │  • Attack Success Rate (ASR)                       │              │
-│  │  • Detection Rate (DR)                             │              │
-│  │  • False Positive Rate (FPR)                       │              │
-│  │  • Retrieval Accuracy (R@k, MRR)                   │              │
-│  │  • Answer Quality (F1, Exact Match, BERTScore)     │              │
-│  │  • Latency overhead                                │              │
-│  └──────────────────────────────────────────────────┘              │
-└─────────────────────────────────────────────────────────────────────┘
+### Pipeline Overview
+
+```mermaid
+flowchart TB
+    subgraph INGESTION["INGESTION LAYER (Offline)"]
+        direction TB
+        A["Raw Documents"] --> B["Format Sanitizer\n(strip hidden chars, HTML)"]
+        B --> C["Text Chunker\n(RecursiveCharacterTextSplitter)"]
+        C --> D["Metadata Tagger\n(source, timestamp, hash)"]
+        D --> E["Embedding Model\n(all-MiniLM-L6-v2 / bge-base-en-v1.5)"]
+        E --> F{{"ANOMALY DETECTOR\n(Embedding Stats)\n⚡ YOUR CONTRIBUTION"}}
+        F -->|Pass| G[("ChromaDB / FAISS\nVector Store")]
+        F -->|Quarantine| H[("Quarantine Store")]
+        E --> I[("BM25 Index\n(rank-bm25)")]
+    end
+
+    subgraph RETRIEVAL["RETRIEVAL LAYER (Online)"]
+        direction TB
+        J["User Query"] --> K["Dense Retrieval\n(FAISS / ChromaDB)"]
+        J --> L["Sparse Retrieval\n(BM25)"]
+        K --> M{{"DISAGREEMENT DETECTOR\n(Dense vs BM25 overlap)\n⚡ YOUR CONTRIBUTION"}}
+        L --> M
+        M --> N["Cross-Encoder Reranker\n(ms-marco-MiniLM-L6)"]
+        N --> O["Filtered Top-k Documents"]
+    end
+
+    subgraph GENERATION["GENERATION LAYER"]
+        direction TB
+        P["System Prompt + Context + Query"] --> Q["Open-Source LLM\n(Mistral-7B / Llama-3-8B / Phi-3-mini)"]
+        Q --> R["Generated Response"]
+    end
+
+    subgraph EVAL["EVALUATION MODULE"]
+        direction LR
+        S["ASR"]
+        T["Detection Rate"]
+        U["FPR"]
+        V["Retrieval Accuracy (R@k, MRR)"]
+        W["Answer Quality (F1, EM, BERTScore)"]
+        X["Latency"]
+    end
+
+    G --> K
+    I --> L
+    O --> P
+    R --> EVAL
+
+    style INGESTION fill:#1a1a2e,color:#e0e0ff,stroke:#4a4a8a
+    style RETRIEVAL fill:#16213e,color:#e0e0ff,stroke:#4a6a8a
+    style GENERATION fill:#0f3460,color:#e0e0ff,stroke:#4a8aaa
+    style EVAL fill:#1a1a3e,color:#e0e0ff,stroke:#6a4a8a
+    style F fill:#ff6b35,color:#fff,stroke:#cc4400
+    style M fill:#ff6b35,color:#fff,stroke:#cc4400
+    style H fill:#ff4444,color:#fff,stroke:#cc0000
 ```
 
 ### Recommended Technology Stack

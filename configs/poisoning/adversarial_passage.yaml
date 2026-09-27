@@ -1,0 +1,15 @@
+# Poisoning strategy: Adversarial Passage Injection
+# Inspired by Zhong et al. (EMNLP 2023) — embedding-targeted adversarial passages.
+
+poisoning:
+  strategy: "adversarial_passage"
+  num_poisoned: 5
+  target_queries: "random"
+  num_target_queries: 50
+
+  # Strategy-specific parameters
+  adversarial_passage:
+    optimization_steps: 100           # Number of token-level optimization iterations
+    candidate_tokens: 50              # Number of candidate replacement tokens per step
+    similarity_target: 0.95           # Target cosine similarity with query embedding
+    seed_text: "relevant"             # "relevant" (start from a relevant doc) | "random"

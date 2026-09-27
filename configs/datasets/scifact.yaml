@@ -1,0 +1,7 @@
+# Dataset-specific overrides for SciFact
+# SciFact is a BEIR dataset (~5K docs) with scientific claim verification.
+
+dataset:
+  name: "scifact"
+  split: "test"
+  max_corpus_size: null

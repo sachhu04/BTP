@@ -1,0 +1,17 @@
+# Poisoning strategy: Targeted Knowledge Corruption
+# Inspired by PoisonedRAG (Zou et al., USENIX Security 2025).
+# Generates semantically plausible but factually incorrect passages.
+
+poisoning:
+  strategy: "targeted_corruption"
+  num_poisoned: 5
+  target_queries: "random"
+  num_target_queries: 50
+
+  # Strategy-specific parameters
+  targeted_corruption:
+    generation_method: "llm_paraphrase"   # "llm_paraphrase" | "template"
+    target_answer: null                    # null = auto-generate contradicting answer
+    ensure_retrieval: true                 # Optimize for high retrieval similarity
+    llm_model: null                        # null = use the project-wide LLM config
+    num_candidates: 3                      # Generate N candidates, keep best

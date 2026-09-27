@@ -1,0 +1,15 @@
+# Poisoning strategy: Blocker Documents
+# Inspired by "Machine Against the RAG" (Shafran et al., USENIX Security 2025).
+# Generates documents that cause the LLM to refuse to answer.
+
+poisoning:
+  strategy: "blocker"
+  num_poisoned: 5
+  target_queries: "random"
+  num_target_queries: 50
+
+  # Strategy-specific parameters
+  blocker:
+    refusal_type: "safety"                # "safety" | "irrelevant" | "contradictory"
+    generation_method: "template"         # "template" | "llm_generated"
+    ensure_retrieval: true                # Optimize for high retrieval similarity

@@ -1,0 +1,94 @@
+# ══════════════════════════════════════════════════════════════════════
+# Master Configuration — Default Values
+# ══════════════════════════════════════════════════════════════════════
+# All parameters have sensible defaults here. Override per-dataset,
+# per-attack, or per-experiment using the configs in subdirectories.
+# ══════════════════════════════════════════════════════════════════════
+
+# ── Paths ──
+paths:
+  data_dir: "./data"
+  raw_dir: "./data/raw"
+  processed_dir: "./data/processed"
+  indices_dir: "./data/indices"
+  experiments_dir: "./experiments"
+  results_dir: "./results"
+
+# ── Dataset ──
+dataset:
+  name: "nfcorpus"                    # BEIR dataset name
+  split: "test"                       # Which split to use for queries
+  max_corpus_size: null               # null = load full corpus; set integer to limit
+
+# ── Preprocessing ──
+chunking:
+  strategy: "fixed"                   # "fixed" | "sentence"
+  chunk_size: 256                     # Tokens per chunk
+  chunk_overlap: 32                   # Overlap between consecutive chunks
+
+# ── Embedding ──
+embedding:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 64
+  device: "cpu"                       # "cpu" | "cuda" | "cuda:0"
+  normalize: true
+
+# ── Retrieval ──
+retrieval:
+  top_k: 10                          # Number of candidates to retrieve
+  dense:
+    enabled: true
+    index_type: "FlatIP"              # FAISS index type
+  bm25:
+    enabled: true
+    tokenizer: "split"               # "split" (whitespace) | "nltk"
+    k1: 1.5                          # BM25 parameter
+    b: 0.75                          # BM25 parameter
+
+# ── Phase A: Threat Simulation ──
+poisoning:
+  strategy: "targeted_corruption"     # Name of the strategy (matches configs/poisoning/)
+  num_poisoned: 5                     # Number of poisoned chunks to inject
+  poison_rate: null                   # Alternative: fraction of corpus (overrides num_poisoned)
+  target_queries: "random"            # "random" | "all" | list of query IDs
+  num_target_queries: 50              # Number of queries to target (if "random")
+  random_seed: 42
+
+# ── Phase B: Detection ──
+detection:
+  features:
+    - "disagreement"                  # Dense–BM25 disagreement features
+    - "embedding_stats"               # Embedding-space statistical features
+    # - "text_stats"                  # Text-level features (optional)
+  scorer:
+    method: "weighted_sum"            # "weighted_sum" | "isolation_forest" | "threshold_rule"
+    weights:                          # Used when method = "weighted_sum"
+      disagreement: 1.0
+      embedding_stats: 0.5
+      text_stats: 0.3
+  threshold: 0.5                      # Suspicion score threshold for flagging
+  disagreement:
+    metric: "rank_difference"         # "rank_difference" | "set_difference" | "rbo" | "jaccard"
+    normalize: true
+
+# ── RAG / LLM Generation ──
+llm:
+  backend: "none"                     # "none" | "huggingface" | "openai_compatible"
+  model_name: "mistralai/Mistral-7B-Instruct-v0.3"
+  max_new_tokens: 256
+  temperature: 0.1
+  device: "cpu"                       # "cpu" | "cuda"
+
+# ── Evaluation ──
+evaluation:
+  metrics:
+    - "detection"                     # Precision, Recall, F1, FPR, FNR
+    - "retrieval"                     # Recall@k, Precision@k, MRR
+    - "answer"                        # EM, F1 (requires LLM generation)
+    - "attack"                        # ASR
+    - "latency"                       # Per-query latency breakdown
+
+# ── Reproducibility ──
+seed: 42
+deterministic: true
+log_level: "INFO"                     # "DEBUG" | "INFO" | "WARNING" | "ERROR"

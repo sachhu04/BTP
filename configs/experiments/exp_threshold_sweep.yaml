@@ -1,0 +1,19 @@
+# Experiment: Detection Threshold Sweep
+# Varies the suspicion score threshold to produce ROC-style analysis.
+
+experiment:
+  name: "threshold_sweep"
+  description: "Sweep detection threshold to plot ROC curve and find optimal operating point"
+
+  base_config: "configs/default.yaml"
+  dataset_config: "configs/datasets/nfcorpus.yaml"
+  poison_config: "configs/poisoning/targeted_corruption.yaml"
+
+  sweep:
+    parameter: "detection.threshold"
+    values: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+  overrides:
+    poisoning.num_poisoned: 5
+    retrieval.top_k: 10
+    seed: 42

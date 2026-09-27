@@ -1,0 +1,20 @@
+# Experiment: Poison Rate Sweep
+# Varies the number of poisoned documents to measure detection robustness.
+
+experiment:
+  name: "poison_rate_sweep"
+  description: "Measure detection accuracy across varying poison injection rates"
+
+  base_config: "configs/default.yaml"
+  dataset_config: "configs/datasets/nfcorpus.yaml"
+  poison_config: "configs/poisoning/targeted_corruption.yaml"
+
+  sweep:
+    parameter: "poisoning.num_poisoned"
+    values: [1, 3, 5, 10, 20, 50]
+
+  # Fixed parameters for this experiment
+  overrides:
+    retrieval.top_k: 10
+    detection.threshold: 0.5
+    seed: 42

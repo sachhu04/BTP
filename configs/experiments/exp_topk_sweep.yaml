@@ -1,0 +1,19 @@
+# Experiment: Top-K Sweep
+# Varies the number of retrieved candidates to measure detection sensitivity.
+
+experiment:
+  name: "topk_sweep"
+  description: "Measure detection accuracy across varying top-k retrieval depths"
+
+  base_config: "configs/default.yaml"
+  dataset_config: "configs/datasets/nfcorpus.yaml"
+  poison_config: "configs/poisoning/targeted_corruption.yaml"
+
+  sweep:
+    parameter: "retrieval.top_k"
+    values: [3, 5, 10, 20, 50]
+
+  overrides:
+    poisoning.num_poisoned: 5
+    detection.threshold: 0.5
+    seed: 42

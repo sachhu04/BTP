@@ -1,0 +1,7 @@
+# Dataset-specific overrides for NFCorpus
+# NFCorpus is a small BEIR dataset (~3.6K docs) — ideal for development and debugging.
+
+dataset:
+  name: "nfcorpus"
+  split: "test"
+  max_corpus_size: null    # Small enough to load fully

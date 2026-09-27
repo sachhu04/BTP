@@ -1,0 +1,34 @@
+# Core
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+PyYAML>=6.0
+tqdm>=4.65
+
+# Embeddings & Retrieval
+sentence-transformers>=2.2
+faiss-cpu>=1.7
+rank-bm25>=0.2
+
+# Deep Learning
+torch>=2.0
+transformers>=4.30
+
+# Datasets
+datasets>=2.14
+
+# Visualization
+matplotlib>=3.7
+seaborn>=0.12
+
+# Evaluation (optional)
+# bert-score>=0.3
+
+# LLM API (optional)
+# openai>=1.0
+# accelerate>=0.24
+
+# Development (optional)
+# pytest>=7.0
+# pytest-cov>=4.0
+# ruff>=0.1
